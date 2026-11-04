@@ -187,6 +187,17 @@ Developed as a Python Full Stack Web Development project.
 
 **Production Database:** PostgreSQL
 
+## Application Screenshots
+
+### 1. Login Page
+![StockFlow Login](screenshots/login.png)
+
+### 2. Dashboard
+![StockFlow Dashboard](screenshots/dashboard.png)
+
+### 3. Product Management
+![StockFlow Products](screenshots/products.png)
+
 ## GitHub Repository
 
 [StockFlow – Inventory Management System](https://github.com/Srilatha-1232/stockflow-inventory-management)

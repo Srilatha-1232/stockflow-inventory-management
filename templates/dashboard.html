@@ -7,138 +7,155 @@
 
 <div class="dashboard-container">
 
+    <!-- Welcome Section -->
     <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+
         <div>
-            <h2>Welcome to StockFlow!</h2>
+            <h2 class="fw-bold">Dashboard</h2>
             <p class="text-muted">
-                Manage your inventory from one place.
+                Welcome back! Here's your inventory overview.
             </p>
         </div>
 
-        <a href="{{ url_for('add_product') }}" class="btn btn-primary">
-            + Add Product
+        <a href="{{ url_for('add_product') }}"
+           class="btn btn-primary">
+            + Add New Product
         </a>
+
     </div>
 
-    <!-- ANALYTICS CARDS -->
-
-    <div class="row g-3 mb-4">
+    <!-- Analytics Cards -->
+    <div class="row g-4">
 
         <div class="col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h6 class="text-muted">Total Products</h6>
-                    <h2>{{ total_products }}</h2>
-                    <p class="mb-0">Products registered</p>
-                </div>
+            <div class="stat-card">
+                <p>Total Products</p>
+                <h3>{{ total_products }}</h3>
+                <span class="text-primary">Products in inventory</span>
             </div>
         </div>
 
         <div class="col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h6 class="text-muted">Total Stock Quantity</h6>
-                    <h2>{{ total_quantity }}</h2>
-                    <p class="mb-0">Units available</p>
-                </div>
+            <div class="stat-card">
+                <p>Total Quantity</p>
+                <h3>{{ total_quantity }}</h3>
+                <span class="text-success">Units available</span>
             </div>
         </div>
 
         <div class="col-md-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h6 class="text-muted">Low Stock Products</h6>
-                    <h2 class="text-danger">{{ low_stock_count }}</h2>
-                    <p class="mb-0">Products needing attention</p>
-                </div>
+            <div class="stat-card">
+                <p>Low Stock Items</p>
+                <h3>{{ low_stock_count }}</h3>
+                <span class="text-danger">Needs attention</span>
             </div>
         </div>
 
     </div>
 
-    <!-- LOW STOCK PRODUCTS -->
+    <!-- Low Stock Table -->
+    <div class="content-card">
 
-    <div class="card shadow-sm mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
 
-        <div class="card-body">
+            <h5 class="fw-bold mb-0">Low Stock Products</h5>
 
-            <div class="d-flex justify-content-between align-items-center">
-                <h4>Low Stock Products</h4>
-                <a href="{{ url_for('view_products') }}">View All Products</a>
-            </div>
-
-            <hr>
-
-            <div class="table-responsive">
-
-                <table class="table table-bordered table-striped">
-
-                    <thead>
-                        <tr>
-                            <th>Product Name</th>
-                            <th>SKU</th>
-                            <th>Available Quantity</th>
-                            <th>Stock Threshold</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-
-                        {% for product in low_stock_products %}
-
-                        <tr>
-                            <td>{{ product.name }}</td>
-                            <td>{{ product.sku }}</td>
-                            <td class="text-danger fw-bold">
-                                {{ product.quantity }}
-                            </td>
-                            <td>
-                                {{ product.low_stock_threshold
-                                   if product.low_stock_threshold is not none
-                                   else user.organization.default_threshold }}
-                            </td>
-                        </tr>
-
-                        {% else %}
-
-                        <tr>
-                            <td colspan="4" class="text-center text-success">
-                                No low-stock products. Your inventory is healthy!
-                            </td>
-                        </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
-
-            </div>
+            <a href="{{ url_for('view_products') }}"
+               class="text-decoration-none">
+                View All Products →
+            </a>
 
         </div>
 
-    </div>
+        {% if low_stock_products %}
 
-    <!-- ACCOUNT INFORMATION -->
+        <div class="table-responsive">
 
-    <div class="card shadow-sm">
+            <table class="table table-hover align-middle">
 
-        <div class="card-body">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>SKU</th>
+                        <th>Available Quantity</th>
+                        <th>Threshold</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
 
-            <h4>Account Information</h4>
-            <hr>
+                <tbody>
 
-            <p><strong>Email:</strong> {{ user.email }}</p>
+                    {% for product in low_stock_products %}
 
-            <p><strong>Organization:</strong>
-                {{ user.organization.name }}
-            </p>
+                    <tr>
 
-            <p><strong>Organization ID:</strong>
-                {{ user.organization_id }}
+                        <td class="fw-semibold">
+                            {{ product.name }}
+                        </td>
+
+                        <td>{{ product.sku }}</td>
+
+                        <td>{{ product.quantity }}</td>
+
+                        <td>
+                            {{ product.low_stock_threshold
+                               if product.low_stock_threshold is not none
+                               else user.organization.default_threshold }}
+                        </td>
+
+                        <td>
+                            <span class="badge bg-danger">
+                                Low Stock
+                            </span>
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="text-center py-4">
+
+            <h6 class="text-success">All Good!</h6>
+
+            <p class="text-muted mb-0">
+                No low-stock products at the moment.
             </p>
 
         </div>
+
+        {% endif %}
+
+    </div>
+
+    <!-- Account Information -->
+    <div class="content-card">
+
+        <h5 class="fw-bold mb-3">Organization Information</h5>
+
+        <hr>
+
+        <p>
+            <strong>Organization:</strong>
+            {{ user.organization.name }}
+        </p>
+
+        <p>
+            <strong>Email:</strong>
+            {{ user.email }}
+        </p>
+
+        <p class="mb-0">
+            <strong>Default Low Stock Threshold:</strong>
+            {{ user.organization.default_threshold }}
+        </p>
 
     </div>
 

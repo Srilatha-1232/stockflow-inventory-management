@@ -1,57 +1,101 @@
+
 {% extends "base.html" %}
 
+{% block title %}Edit Product - StockFlow{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
 
-    <h2>Edit Product</h2>
+<div class="form-page">
 
-    <form method="POST">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="mb-4">
+        <h2 class="fw-bold">Edit Product</h2>
+        <p class="text-muted">Update your inventory information.</p>
+    </div>
 
-        <div class="mb-3">
-            <label>Product Name</label>
-            <input type="text" name="name" class="form-control"
-                   value="{{ product.name }}" required>
-        </div>
+    <div class="content-card">
 
-        <div class="mb-3">
-            <label>SKU</label>
-            <input type="text" name="sku" class="form-control"
-                   value="{{ product.sku }}" required>
-        </div>
+        <form method="POST"
+              action="{{ url_for('edit_product', product_id=product.id) }}">
 
-        <div class="mb-3">
-            <label>Description</label>
-            <textarea name="description" class="form-control">{{ product.description or '' }}</textarea>
-        </div>
+            <input type="hidden" name="csrf_token"
+                   value="{{ csrf_token() }}">
 
-        <div class="mb-3">
-            <label>Quantity</label>
-            <input type="number" name="quantity" class="form-control"
-                   min="0" value="{{ product.quantity }}" required>
-        </div>
+            <div class="row g-3">
 
-        <div class="mb-3">
-            <label>Cost Price</label>
-            <input type="number" name="cost_price" class="form-control"
-                   min="0" step="0.01" value="{{ product.cost_price or 0 }}" required>
-        </div>
+                <div class="col-md-6">
+                    <label class="form-label">Product Name *</label>
+                    <input type="text" name="name"
+                           class="form-control"
+                           value="{{ product.name }}" required>
+                </div>
 
-        <div class="mb-3">
-            <label>Selling Price</label>
-            <input type="number" name="selling_price" class="form-control"
-                   min="0" step="0.01" value="{{ product.selling_price or 0 }}" required>
-        </div>
+                <div class="col-md-6">
+                    <label class="form-label">SKU *</label>
+                    <input type="text" name="sku"
+                           class="form-control"
+                           value="{{ product.sku }}" required>
+                </div>
 
-        <div class="mb-3">
-            <label>Low Stock Threshold</label>
-            <input type="number" name="low_stock_threshold" class="form-control"
-                   min="0" value="{{ product.low_stock_threshold }}">
-        </div>
+                <div class="col-12">
+                    <label class="form-label">Description</label>
+                    <textarea name="description"
+                              class="form-control"
+                              rows="3">{{ product.description or '' }}</textarea>
+                </div>
 
-        <button type="submit" class="btn btn-success">Update Product</button>
-        <a href="{{ url_for('view_products') }}" class="btn btn-secondary">Cancel</a>
-    </form>
+                <div class="col-md-6">
+                    <label class="form-label">Quantity *</label>
+                    <input type="number" name="quantity"
+                           class="form-control"
+                           min="0"
+                           value="{{ product.quantity }}" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Low Stock Threshold</label>
+                    <input type="number" name="low_stock_threshold"
+                           class="form-control"
+                           min="0"
+                           value="{{ product.low_stock_threshold if product.low_stock_threshold is not none else '' }}">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Cost Price (₹)</label>
+                    <input type="number" name="cost_price"
+                           class="form-control"
+                           min="0" step="0.01"
+                           value="{{ product.cost_price if product.cost_price is not none else '' }}">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Selling Price (₹)</label>
+                    <input type="number" name="selling_price"
+                           class="form-control"
+                           min="0" step="0.01"
+                           value="{{ product.selling_price if product.selling_price is not none else '' }}">
+                </div>
+
+            </div>
+
+            <hr class="my-4">
+
+            <div class="d-flex gap-2">
+
+                <button type="submit" class="btn btn-primary">
+                    Update Product
+                </button>
+
+                <a href="{{ url_for('view_products') }}"
+                   class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
 
 </div>
+
 {% endblock %}

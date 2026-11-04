@@ -1,0 +1,53 @@
+
+body {
+    background-color: #f5f7fb;
+    font-family: Arial, sans-serif;
+    color: #212529;
+}
+
+.auth-container {
+    min-height: 75vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 450px;
+    padding: 35px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.auth-card h2 {
+    font-weight: 700;
+}
+
+.form-control {
+    padding: 11px;
+    border-radius: 7px;
+}
+
+.btn {
+    border-radius: 7px;
+    padding: 10px 15px;
+}
+
+.dashboard-container {
+    padding-top: 20px;
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+}
+
+@media (max-width: 576px) {
+
+    .auth-card {
+        padding: 22px;
+    }
+
+}

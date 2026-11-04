@@ -1,0 +1,97 @@
+
+{% extends "base.html" %}
+
+{% block title %}Create Account - StockFlow{% endblock %}
+
+{% block content %}
+
+<div class="auth-container">
+
+    <div class="auth-card">
+
+        <h2 class="text-center mb-2">Create Account</h2>
+
+        <p class="text-center text-muted mb-4">
+            Start managing your inventory with StockFlow.
+        </p>
+
+        <form method="POST" action="{{ url_for('signup') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="mb-3">
+
+                <label class="form-label">Organization Name</label>
+
+                <input type="text"
+                       name="organization_name"
+                       class="form-control"
+                       placeholder="Enter organization name"
+                       maxlength="120"
+                       required>
+
+            </div>
+
+
+            <div class="mb-3">
+
+                <label class="form-label">Email Address</label>
+
+                <input type="email"
+                       name="email"
+                       class="form-control"
+                       placeholder="Enter your email"
+                       maxlength="120"
+                       required>
+
+            </div>
+
+
+            <div class="mb-3">
+
+                <label class="form-label">Password</label>
+
+                <input type="password"
+                       name="password"
+                       class="form-control"
+                       placeholder="Minimum 8 characters"
+                       minlength="8"
+                       required>
+
+            </div>
+
+
+            <div class="mb-4">
+
+                <label class="form-label">Confirm Password</label>
+
+                <input type="password"
+                       name="confirm_password"
+                       class="form-control"
+                       placeholder="Confirm your password"
+                       required>
+
+            </div>
+
+
+            <button type="submit" class="btn btn-primary w-100">
+                Create Account
+            </button>
+
+        </form>
+
+
+        <p class="text-center mt-4 mb-0">
+
+            Already have an account?
+
+            <a href="{{ url_for('login') }}">
+                Login
+            </a>
+
+        </p>
+
+    </div>
+
+</div>
+
+{% endblock %}

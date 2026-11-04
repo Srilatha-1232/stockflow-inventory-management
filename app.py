@@ -11,7 +11,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 
 from config import Config
-from models import db, User, Organization
+from models import db, User, Organization, Product
 
 
 # APPLICATION SETUP
@@ -220,6 +220,86 @@ def dashboard():
         "dashboard.html",
         user=current_user
     )
+
+
+# ==================================
+# ADD PRODUCT ROUTE
+# ==================================
+
+@app.route("/products/add", methods=["GET", "POST"])
+@login_required
+def add_product():
+
+    if request.method == "POST":
+
+        name = request.form.get("name", "").strip()
+        sku = request.form.get("sku", "").strip().upper()
+        description = request.form.get("description", "").strip()
+
+        try:
+            quantity = int(request.form.get("quantity", 0))
+            cost_price = float(request.form.get("cost_price", 0))
+            selling_price = float(request.form.get("selling_price", 0))
+
+            threshold_input = request.form.get("low_stock_threshold", "").strip()
+
+            threshold = (
+                int(threshold_input)
+                if threshold_input
+                else current_user.organization.default_threshold
+            )
+
+        except (ValueError, TypeError):
+            flash("Please enter valid numeric values.", "danger")
+            return redirect(url_for("add_product"))
+
+        # Validate fields
+        if not name or not sku:
+            flash("Product name and SKU are required.", "danger")
+            return redirect(url_for("add_product"))
+
+        if quantity < 0 or threshold < 0:
+            flash("Quantity and threshold cannot be negative.", "danger")
+            return redirect(url_for("add_product"))
+
+        if cost_price < 0 or selling_price < 0:
+            flash("Prices cannot be negative.", "danger")
+            return redirect(url_for("add_product"))
+
+        # Check duplicate SKU within this organization
+        existing_product = Product.query.filter_by(
+            organization_id=current_user.organization_id,
+            sku=sku
+        ).first()
+
+        if existing_product:
+            flash("This SKU already exists in your organization.", "warning")
+            return redirect(url_for("add_product"))
+
+        try:
+            product = Product(
+                organization_id=current_user.organization_id,
+                name=name,
+                sku=sku,
+                description=description,
+                quantity=quantity,
+                cost_price=cost_price,
+                selling_price=selling_price,
+                low_stock_threshold=threshold
+            )
+
+            db.session.add(product)
+            db.session.commit()
+
+            flash("Product added successfully!", "success")
+            return redirect(url_for("view_products"))
+
+        except Exception:
+            db.session.rollback()
+            app.logger.exception("Product creation failed")
+            flash("Unable to add product. Please try again.", "danger")
+
+    return render_template("add_product.html")
 
 
 # ==================================

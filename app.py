@@ -216,11 +216,45 @@ def login():
 @login_required
 def dashboard():
 
+    organization_id = current_user.organization_id
+
+    # Total number of products
+    total_products = Product.query.filter_by(
+        organization_id=organization_id
+    ).count()
+
+    # Total quantity of all products
+    total_quantity = db.session.query(
+        db.func.coalesce(db.func.sum(Product.quantity), 0)
+    ).filter_by(
+        organization_id=organization_id
+    ).scalar()
+
+    # Get all products belonging to this organization
+    products = Product.query.filter_by(
+        organization_id=organization_id
+    ).all()
+
+    # Find low-stock products
+    low_stock_products = [
+        product for product in products
+        if product.quantity <= (
+            product.low_stock_threshold
+            if product.low_stock_threshold is not None
+            else current_user.organization.default_threshold
+        )
+    ]
+
+    low_stock_count = len(low_stock_products)
+
     return render_template(
         "dashboard.html",
-        user=current_user
+        user=current_user,
+        total_products=total_products,
+        total_quantity=total_quantity,
+        low_stock_count=low_stock_count,
+        low_stock_products=low_stock_products
     )
-
 
 # ==================================
 # ADD PRODUCT ROUTE

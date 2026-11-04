@@ -301,6 +301,119 @@ def add_product():
 
     return render_template("add_product.html")
 
+@app.route("/products")
+@login_required
+def view_products():
+    search = request.args.get("search", "").strip()
+
+    query = Product.query.filter_by(
+        organization_id=current_user.organization_id
+    )
+
+    if search:
+        query = query.filter(
+            db.or_(
+                Product.name.ilike(f"%{search}%"),
+                Product.sku.ilike(f"%{search}%")
+            )
+        )
+
+    products = query.order_by(Product.created_at.desc()).all()
+
+    return render_template(
+        "products.html",
+        products=products,
+        search=search
+    )
+
+@app.route("/products/edit/<int:product_id>", methods=["GET", "POST"])
+@login_required
+def edit_product(product_id):
+
+    product = Product.query.filter_by(
+        id=product_id,
+        organization_id=current_user.organization_id
+    ).first_or_404()
+
+    if request.method == "POST":
+
+        name = request.form.get("name", "").strip()
+        sku = request.form.get("sku", "").strip().upper()
+        description = request.form.get("description", "").strip()
+
+        try:
+            quantity = int(request.form.get("quantity"))
+            cost_price = float(request.form.get("cost_price"))
+            selling_price = float(request.form.get("selling_price"))
+
+            threshold_input = request.form.get("low_stock_threshold", "").strip()
+
+            threshold = (
+                int(threshold_input)
+                if threshold_input
+                else current_user.organization.default_threshold
+            )
+
+            if not name or not sku:
+                raise ValueError
+
+            if min(quantity, cost_price, selling_price, threshold) < 0:
+                raise ValueError
+
+        except (ValueError, TypeError):
+            flash("Please enter valid product details.", "danger")
+            return redirect(url_for("edit_product", product_id=product.id))
+
+        duplicate = Product.query.filter(
+            Product.organization_id == current_user.organization_id,
+            Product.sku == sku,
+            Product.id != product.id
+        ).first()
+
+        if duplicate:
+            flash("This SKU already exists.", "warning")
+            return redirect(url_for("edit_product", product_id=product.id))
+
+        product.name = name
+        product.sku = sku
+        product.description = description
+        product.quantity = quantity
+        product.cost_price = cost_price
+        product.selling_price = selling_price
+        product.low_stock_threshold = threshold
+
+        try:
+            db.session.commit()
+            flash("Product updated successfully!", "success")
+            return redirect(url_for("view_products"))
+
+        except Exception:
+            db.session.rollback()
+            app.logger.exception("Product update failed")
+            flash("Unable to update product.", "danger")
+
+    return render_template("edit_product.html", product=product)
+
+@app.route("/products/delete/<int:product_id>", methods=["POST"])
+@login_required
+def delete_product(product_id):
+
+    product = Product.query.filter_by(
+        id=product_id,
+        organization_id=current_user.organization_id
+    ).first_or_404()
+
+    try:
+        db.session.delete(product)
+        db.session.commit()
+        flash("Product deleted successfully!", "success")
+
+    except Exception:
+        db.session.rollback()
+        app.logger.exception("Product deletion failed")
+        flash("Unable to delete product.", "danger")
+
+    return redirect(url_for("view_products"))
 
 # ==================================
 # LOGOUT ROUTE

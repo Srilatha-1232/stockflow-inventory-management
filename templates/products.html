@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2>Product Management</h2>
+
+    <a href="{{ url_for('add_product') }}" class="btn btn-primary mb-3">
+        + Add Product
+    </a>
+
+    <form method="GET" action="{{ url_for('view_products') }}" class="mb-3">
+        <input
+            type="text"
+            name="search"
+            placeholder="Search by name or SKU"
+            value="{{ search }}"
+            class="form-control"
+        >
+        <button type="submit" class="btn btn-dark mt-2">Search</button>
+        <a href="{{ url_for('view_products') }}" class="btn btn-secondary mt-2">
+            Clear
+        </a>
+    </form>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>SKU</th>
+                <th>Quantity</th>
+                <th>Cost Price</th>
+                <th>Selling Price</th>
+                <th>Threshold</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.id }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.sku }}</td>
+                <td>{{ product.quantity }}</td>
+                <td>{{ product.cost_price }}</td>
+                <td>{{ product.selling_price }}</td>
+                <td>{{ product.low_stock_threshold }}</td>
+                <td>
+                    <a href="{{ url_for('edit_product', product_id=product.id) }}"
+                       class="btn btn-sm btn-warning">Edit</a>
+
+                    <form method="POST"
+                          action="{{ url_for('delete_product', product_id=product.id) }}"
+                          style="display:inline;"
+                          onsubmit="return confirm('Are you sure you want to delete this product?');">
+
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-sm btn-danger">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" class="text-center">No products found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}
